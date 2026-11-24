@@ -21,7 +21,7 @@
     -->
     <template v-slot:menuHeaderRender>
       <div>
-        <logo-svg />
+        <img src="@/assets/logo.svg" />
         <h1>{{ title }}</h1>
       </div>
     </template>
@@ -36,7 +36,7 @@
       </div>
     </template>
 
-    <setting-drawer :settings="settings" @change="handleSettingChange">
+    <setting-drawer v-if="isDev" :settings="settings" @change="handleSettingChange">
       <div style="margin: 12px 0;">
         This is SettingDrawer custom footer content.
       </div>
@@ -62,7 +62,6 @@ import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import Ads from '@/components/Other/CarbonAds'
-import LogoSvg from '../assets/logo.svg?inline'
 
 export default {
   name: 'BasicLayout',
@@ -70,7 +69,6 @@ export default {
     SettingDrawer,
     RightContent,
     GlobalFooter,
-    LogoSvg,
     Ads
   },
   data () {
@@ -78,6 +76,7 @@ export default {
       // preview.pro.antdv.com only use.
       isProPreviewSite: process.env.VUE_APP_PREVIEW === 'true' && process.env.NODE_ENV !== 'development',
       // end
+      isDev: process.env.NODE_ENV === 'development' || process.env.VUE_APP_PREVIEW === 'true',
 
       // base
       menus: [],

@@ -152,7 +152,7 @@ export default {
   },
   methods: {
     handlePasswordLevel (rule, value, callback) {
-      if (value === '') {
+      if (!value) {
        return callback()
       }
       console.log('scorePassword ; ', scorePassword(value))
@@ -172,6 +172,8 @@ export default {
       }
       this.state.passwordLevel = this.state.level
       this.state.percent = this.state.level * 33
+
+      callback()
     },
 
     handlePasswordCheck (rule, value, callback) {

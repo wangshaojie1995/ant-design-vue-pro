@@ -1,4 +1,4 @@
-import router from './router'
+import router, { resetRouter } from './router'
 import store from './store'
 import storage from 'store'
 import NProgress from 'nprogress' // progress bar
@@ -16,9 +16,10 @@ const defaultRoutePath = '/dashboard/workplace'
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
-  to.meta && (typeof to.meta.title !== 'undefined' && setDocumentTitle(`${i18nRender(to.meta.title)} - ${domTitle}`))
+  to.meta && typeof to.meta.title !== 'undefined' && setDocumentTitle(`${i18nRender(to.meta.title)} - ${domTitle}`)
   /* has token */
-  if (storage.get(ACCESS_TOKEN)) {
+  const token = storage.get(ACCESS_TOKEN)
+  if (token) {
     if (to.path === loginRoutePath) {
       next({ path: defaultRoutePath })
       NProgress.done()
@@ -29,12 +30,15 @@ router.beforeEach((to, from, next) => {
         store
           .dispatch('GetInfo')
           .then(res => {
-            const roles = res.result && res.result.role
-            // generate dynamic router
-            store.dispatch('GenerateRoutes', { roles }).then(() => {
-              // 根据roles权限生成可访问的路由表
+            console.log('res', res)
+            // 根据用户权限信息生成可访问的路由表
+            store.dispatch('GenerateRoutes', { token, ...res }).then(() => {
               // 动态添加可访问路由表
-              router.addRoutes(store.getters.addRouters)
+              // VueRouter@3.5.0+ New API
+              resetRouter() // 重置路由 防止退出重新登录或者 token 过期后页面未刷新，导致的路由重复添加
+              store.getters.addRouters.forEach(r => {
+                router.addRoute(r)
+              })
               // 请求带有 redirect 重定向时，登录自动重定向到该地址
               const redirect = decodeURIComponent(from.query.redirect || to.path)
               if (to.path === redirect) {
